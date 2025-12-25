@@ -9,11 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;900&family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="preload" as="image" href="poster.png">
     
+    <link rel="preload" as="image" href="poster.png">
+
     <style>
         :root {
+            /* Warna saya kembalikan ke terang agar teks terbaca jelas */
             --bg-color: #FAFAFA;
             --primary-yellow: #FFD93D;
             --text-dark: #2D3436;
@@ -22,164 +23,232 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        a, button, .news-card, .mail-item { cursor: pointer; }
+        
+        /* Cursor Pointer untuk elemen interaktif */
+        a, button, .news-card, .btn-action, .modal-close { cursor: pointer; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-dark);
             font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
-            overflow-y: auto; 
+            overflow-y: auto; /* Scroll aktif */
         }
 
-        /* --- BACKGROUND --- */
+        /* --- BACKGROUND PATTERN --- */
         .bg-pattern {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(#DDD 1px, transparent 1px);
             background-size: 20px 20px; z-index: -1; opacity: 0.6; pointer-events: none;
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION (Mobile Scrollable) --- */
         nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
             z-index: 1000; display: flex; align-items: center; justify-content: space-between;
             padding: 0 5%; border-bottom: 1px solid #EEE;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .nav-logo { font-weight: 900; font-size: 20px; white-space: nowrap; margin-right: 20px; cursor: pointer; }
+        .nav-logo { font-weight: 900; font-size: 20px; white-space: nowrap; margin-right: 20px; color: var(--text-dark); }
         .nav-logo span { color: var(--primary-yellow); }
 
-        .nav-container { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-right: 20px; }
-        .nav-container::-webkit-scrollbar { display: none; }
+        .nav-container { 
+            display: flex; gap: 20px; overflow-x: auto; 
+            scrollbar-width: none; /* Firefox hide scrollbar */
+            padding-right: 20px; height: 100%; align-items: center;
+        }
+        .nav-container::-webkit-scrollbar { display: none; /* Chrome hide scrollbar */ }
 
         .nav-btn {
             background: none; border: none; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 13px; color: #888; cursor: pointer;
-            text-transform: uppercase; white-space: nowrap; position: relative; padding: 10px 5px;
-            transition: 0.3s;
+            font-weight: 600; font-size: 13px; color: #888; 
+            text-transform: uppercase; white-space: nowrap; position: relative; 
+            padding: 10px 0; transition: 0.3s;
         }
-        .nav-btn:hover, .nav-btn.active { color: var(--text-dark); }
+        .nav-btn:hover { color: var(--text-dark); }
+        .nav-btn.active { color: var(--text-dark); }
+        
+        /* Garis bawah kuning saat aktif */
         .nav-btn.active::after {
             content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
-            background: var(--primary-yellow);
+            background: var(--primary-yellow); border-radius: 2px;
         }
 
         /* --- TABS --- */
         .tab-section { 
             display: none; min-height: 100vh; padding: 40px 5%; padding-top: 100px; 
-            opacity: 0; transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out;
         }
-        .tab-section.active { display: block; animation: tabReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes tabReveal {
-            0% { opacity: 0; transform: translateY(30px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        .tab-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .section-title {
             font-size: 32px; font-weight: 900; margin-bottom: 30px;
             border-left: 6px solid var(--primary-yellow); padding-left: 20px;
-            text-transform: uppercase;
+            text-transform: uppercase; color: var(--text-dark);
         }
 
-        /* --- HERO (HOME) --- */
+        /* --- HOME (HERO) --- */
         #home.tab-section {
             padding: 0; position: relative;
-            /* WARNA DASAR (Muncul sebelum gambar siap) */
-            background-color: #4a6fa5; 
-            /* GAMBAR ASLI */
-            background-image: url('poster.png');
+            /* Fallback warna abu-abu jika gambar loading */
+            background-color: #555;
+            background-image: url('poster.png'), url('https://placehold.co/1920x1080/81ecec/fff?text=Poster+Missing');
             background-size: cover; background-position: center;
             display: flex; align-items: center; justify-content: center;
             color: white; overflow: hidden;
         }
+        /* Overlay Gelap Transparan */
         #home::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4); z-index: 1;
         }
         .hero-container {
             position: relative; z-index: 2; text-align: center; padding: 20px;
-            opacity: 0; transform: translateY(30px);
-            animation: heroTextUp 0.8s 0.3s ease-out forwards; 
+            animation: heroUp 1s ease-out forwards; opacity: 0;
         }
-        @keyframes heroTextUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes heroUp { to { opacity: 1; transform: translateY(-20px); } }
 
-        .hero-title { font-size: 48px; font-weight: 900; line-height: 1.1; letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .hero-subtitle { margin-top: 15px; color: rgba(255,255,255,0.9); font-size: 16px; }
+        .hero-title { 
+            font-size: 56px; font-weight: 900; line-height: 1; letter-spacing: -2px; 
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 10px;
+        }
+        .hero-subtitle { font-size: 18px; color: rgba(255,255,255,0.9); font-weight: 300; letter-spacing: 1px; }
 
-        /* --- GRIDS --- */
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+        /* --- GRIDS & CARDS --- */
+        /* Grid responsive: Mengecil otomatis di HP */
+        .news-grid, .staff-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; 
+        }
+        .char-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; 
+        }
 
-        /* CARDS */
         .news-card, .staff-card, .char-card {
-            background: white; border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s;
+            background: white; border-radius: 16px; overflow: hidden; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #F0F0F0;
         }
-        .staff-card { padding: 25px; border: 1px solid #EEE; cursor: default; }
-        .char-card { text-align: center; padding-bottom: 15px; cursor: default;}
-        
-        .news-card:hover, .staff-card:hover, .char-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        
-        .news-thumb { width: 100%; height: 160px; background: #EEE; object-fit: cover; }
+
+        .news-card:hover, .staff-card:hover, .char-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(255, 217, 61, 0.2); /* Efek glow kuning halus */
+            border-color: var(--primary-yellow);
+        }
+
+        /* News Specific */
+        .news-thumb { width: 100%; height: 180px; background: #EEE; object-fit: cover; }
         .news-content { padding: 20px; }
-        .news-date { font-size: 11px; background: #F0F0F0; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 10px; color: #666; }
-        .news-title { font-weight: 700; font-size: 16px; }
-
-        .staff-name { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-        .role-badge { display: inline-block; font-size: 10px; background: #F8F9FA; border: 1px solid #EEE; padding: 3px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; }
-        .role-badge.main { background: var(--primary-yellow); color: black; border:none; font-weight: bold; }
-
-        .char-img { width: 100%; height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background:#DDD; filter: grayscale(100%); transition:0.3s; }
-        .char-card:hover .char-img { filter: grayscale(0%); transform: scale(1.02); }
-        .char-name { font-weight: 800; text-transform: uppercase; font-size: 18px; line-height: 1; }
-        .char-cv { font-size: 12px; color: #888; font-weight: 500; margin-top: 5px; font-family: 'Noto Sans JP', sans-serif; }
-
-        /* --- MAIL SECTION STYLES (NEW) --- */
-        .mail-list { display: flex; flex-direction: column; gap: 15px; max-width: 800px; margin: 0 auto; }
-        .mail-item { 
-            background: white; padding: 20px; border-radius: 12px; 
-            display: flex; align-items: center; gap: 20px;
-            border: 1px solid #EEE; transition: 0.2s; position: relative; overflow: hidden;
+        .news-date { 
+            font-size: 11px; background: #F8F9FA; color: #888; 
+            padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 10px; font-weight: 600;
         }
-        .mail-item:hover { transform: translateX(10px); border-left: 5px solid var(--primary-yellow); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        
-        .mail-avatar { 
-            width: 50px; height: 50px; border-radius: 50%; background: #DDD; object-fit: cover; flex-shrink: 0;
-        }
-        .mail-info { flex: 1; min-width: 0; /* Fix text overflow */ }
-        .mail-sender { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        .mail-subject { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
-        .mail-preview { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mail-date { font-size: 11px; color: #AAA; font-weight: 500; margin-left: 10px; }
+        .news-title { font-weight: 700; font-size: 16px; line-height: 1.4; }
 
-        /* BOXES */
-        .volunteer-box, .donate-box { background: #FFF; border: 1px solid #EEE; border-radius: 12px; padding: 30px; text-align: center; max-width: 600px; margin: 0 auto; }
-        .btn-action { display: inline-block; padding: 10px 25px; background: var(--text-dark); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; margin-top: 15px; font-size: 14px; transition: 0.2s; }
-        .btn-action:hover { transform: scale(1.05); }
+        /* Staff Specific */
+        .staff-card { padding: 25px; }
+        .staff-name { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .role-badge { 
+            display: inline-block; font-size: 10px; background: #F5F5F5; color: #555;
+            padding: 4px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px; 
+        }
+        .role-badge.main { background: var(--primary-yellow); color: #000; font-weight: bold; }
+
+        /* Chars Specific */
+        .char-card { padding: 15px; text-align: center; }
+        .char-img { 
+            width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; 
+            background: #DDD; filter: grayscale(100%); transition: 0.4s;
+        }
+        .char-card:hover .char-img { filter: grayscale(0%); transform: scale(1.05); }
+        .char-name { font-weight: 900; text-transform: uppercase; font-size: 16px; }
+        .char-cv { font-size: 11px; color: #999; margin-top: 5px; font-weight: 600; }
+
+        /* --- INTRO & STORY --- */
+        .story-img { width: 100%; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .intro-text p { margin-bottom: 20px; line-height: 1.8; color: #555; text-align: justify; }
+
+        /* --- BOXES (Volunteer & Donate) --- */
+        .volunteer-box, .donate-box { 
+            background: #FFF; border: 2px dashed #E0E0E0; border-radius: 20px; 
+            padding: 50px 20px; text-align: center; max-width: 600px; margin: 0 auto;
+        }
+        .btn-action { 
+            display: inline-block; padding: 12px 35px; background: var(--text-dark); color: white; 
+            text-decoration: none; border-radius: 50px; font-weight: bold; margin-top: 20px; 
+            font-size: 14px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-action:hover { transform: scale(1.05); background: var(--primary-yellow); color: black; }
         .btn-trakteer { background: var(--trakteer-red); }
+        .btn-trakteer:hover { background: #90000d; color: white; }
 
-        /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-box { background: white; width: 100%; max-width: 600px; max-height: 80vh; border-radius: 16px; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-close { position: absolute; top: 15px; right: 15px; width: 35px; height: 35px; background: white; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #333; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 2001; }
-        .modal-img { width: 100%; height: 250px; object-fit: cover; }
+        /* --- MODAL --- */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); z-index: 2000; 
+            display: none; justify-content: center; align-items: center; padding: 20px; 
+            backdrop-filter: blur(5px);
+        }
+        .modal-box { 
+            background: white; width: 100%; max-width: 500px; max-height: 90vh; 
+            border-radius: 20px; overflow-y: auto; position: relative; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-close { 
+            position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; 
+            background: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; color: #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; background: #EEE;}
         .modal-body { padding: 30px; }
+
+        /* --- LOADING SCREEN (Sederhana & Aman) --- */
+        #intro-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #FFF; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .loading-spinner {
+            width: 40px; height: 40px; border: 4px solid #EEE; border-top: 4px solid var(--primary-yellow);
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- RESPONSIVE MEDIA QUERIES (HP) --- */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 36px; }
+            .hero-subtitle { font-size: 14px; padding: 0 20px; }
+            .section-title { font-size: 24px; margin-bottom: 20px; }
+            .nav-container { gap: 15px; padding-right: 15px; }
+            .tab-section { padding: 30px 5%; padding-top: 90px; }
+            .modal-box { width: 95%; }
+        }
 
     </style>
 </head>
-<body>
+<body class="loading">
+
+    <div id="intro-layer">
+        <div style="text-align: center;">
+            <img src="logo.png" onerror="this.src='https://placehold.co/100x100/FFD93D/333?text=OASD'" style="width: 80px; margin-bottom: 20px;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+        </div>
+    </div>
 
     <div class="bg-pattern"></div>
 
-    <nav id="navbar">
+    <nav>
         <div class="nav-logo" onclick="openTab('home', document.getElementById('btn-home'))">OASD<span>.</span></div>
         <div class="nav-container">
             <button id="btn-home" class="nav-btn active" onclick="openTab('home', this)">Home</button>
             <button class="nav-btn" onclick="openTab('news', this)">News</button>
-            <button class="nav-btn" onclick="openTab('mail', this)">Mail</button> <button class="nav-btn" onclick="openTab('story', this)">Story</button>
+            <button class="nav-btn" onclick="openTab('story', this)">Story</button>
             <button class="nav-btn" onclick="openTab('chars', this)">Chars</button>
             <button class="nav-btn" onclick="openTab('staff', this)">Staff</button>
             <button class="nav-btn" onclick="openTab('volunteer', this)">Volunteer</button>
@@ -197,20 +266,23 @@
     <div id="news" class="tab-section">
         <h2 class="section-title">Latest Updates</h2>
         <div class="news-grid">
-            <div class="news-card" onclick="showNews('Voice Actor Announced!', 'Kami telah memilih Volunteer Voice Actor: Aulia, Uvi, Shirogami Rei, dan Aneera. Serta cameo dari @Penyukalore.', 'news1.png')">
+            
+            <div class="news-card" onclick="showNews('Voice Actor Announced!', 'Setelah pencarian selama 1 minggu, kami memilih: Aulia, Uvi, Shirogami Rei, dan Aneera. Serta cameo dari @Penyukalore.', 'news1.png')">
                 <img src="news1.png" onerror="this.src='https://placehold.co/400x200/FFD93D/333?text=VA+ANNOUNCEMENT'" class="news-thumb">
                 <div class="news-content">
                     <span class="news-date">24 DEC 2025</span>
-                    <div class="news-title">Volunteer Voice Actor Diumumkan!</div>
+                    <div class="news-title">Volunteer Voice Actor Bahasa Indonesia Diumumkan!</div>
                 </div>
             </div>
-            <div class="news-card" onclick="showNews('Demo Chapter 1', 'Demo Chapter 1 sedang dalam pengerjaan dan direncanakan rilis 2026.', 'Tak berjudul953_20251213230121.png')">
-                <img src="Tak berjudul953_20251213230121.png" onerror="this.src='https://placehold.co/400x200/9B59B6/fff?text=DEMO'" class="news-thumb">
+
+            <div class="news-card" onclick="showNews('DEMO CHAPTER 1 RILIS TAHUN DEPAN!', 'Setelah dipublish nya prototype dari On A Sunny day, HAPPYCAT STUDIOS memutuskan untuk melanjutkan penggarapan DEMO Chapter 1 yang akan dirilis tahun 2026 mendatang.', 'news3.png')">
+                <img src="news3.png" onerror="this.src='https://placehold.co/400x200/FFD93D/333?text=NEWS'" class="news-thumb">
                 <div class="news-content">
-                    <span class="news-date">22 DEC 2025</span>
-                    <div class="news-title">Announcement Demo Chapter 1</div>
+                    <span class="news-date">24 DEC 2025</span>
+                    <div class="news-title">Tentang Perilisan DEMO</div>
                 </div>
             </div>
+
              <div class="news-card" onclick="showNews('Character Reveal: Maisy', 'Memperkenalkan Maisy, siswi pendiam di perpustakaan.', 'https://placehold.co/400x200/9B59B6/fff?text=MAISY')">
                 <img src="https://placehold.co/400x200/9B59B6/fff?text=MAISY" class="news-thumb">
                 <div class="news-content">
@@ -218,52 +290,16 @@
                     <div class="news-title">Character Reveal: Maisy</div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="mail" class="tab-section">
-        <h2 class="section-title">Staff Messages</h2>
-        <div class="mail-list">
-            
-            <div class="mail-item" onclick="showMail('Ebwoenne Saito (Director)', 'Terima kasih sudah mampir!', 'Halo semuanya!<br><br>Terima kasih banyak sudah mengunjungi website resmi On A Sunny Day. Kami sangat bersemangat untuk membagikan progress pengembangan game ini kepada kalian.<br><br>Jangan lupa cek tab News secara berkala untuk info terbaru. Have a sunny day!', 'https://placehold.co/100x100/333/FFF?text=E')">
-                <img src="https://placehold.co/100x100/333/FFF?text=E" class="mail-avatar">
-                <div class="mail-info">
-                    <div class="mail-sender">Ebwoenne Saito (Director)</div>
-                    <div class="mail-subject">Terima kasih sudah mampir!</div>
-                    <div class="mail-preview">Halo semuanya! Terima kasih banyak sudah mengunjungi website...</div>
-                </div>
-                <div class="mail-date">Today</div>
-            </div>
-
-            <div class="mail-item" onclick="showMail('Katsumi (Co-Writer)', 'Update Naskah Chapter 1', 'Lapor pak Director,<br><br>Naskah untuk Chapter 1 sudah 90% rampung. Bagian dialog di atap sekolah mungkin perlu sedikit revisi biar lebih emosional. Sisanya aman terkendali.<br><br>Siapkan tisu, ini bakal sedih.', 'https://placehold.co/100x100/F1C40F/FFF?text=K')">
-                <img src="https://placehold.co/100x100/F1C40F/FFF?text=K" class="mail-avatar">
-                <div class="mail-info">
-                    <div class="mail-sender">Katsumi (Co-Writer)</div>
-                    <div class="mail-subject">Update Naskah Chapter 1</div>
-                    <div class="mail-preview">Lapor pak Director, Naskah untuk Chapter 1 sudah 90% rampung...</div>
-                </div>
-                <div class="mail-date">Yesterday</div>
-            </div>
-
-            <div class="mail-item" onclick="showMail('Happycat System', 'Donasi Trakteer Diterima', 'Meow!<br><br>Terima kasih kepada anonim yang sudah mentraktir kami 5 unit Ikan Pindang via Trakteer. Energi kami sudah terisi penuh untuk lanjut coding hari ini!<br><br>- Happycat Studios', 'https://placehold.co/100x100/BE1E2D/FFF?text=H')">
-                <img src="https://placehold.co/100x100/BE1E2D/FFF?text=H" class="mail-avatar">
-                <div class="mail-info">
-                    <div class="mail-sender">Happycat System</div>
-                    <div class="mail-subject">Donasi Trakteer Diterima</div>
-                    <div class="mail-preview">Meow! Terima kasih kepada anonim yang sudah mentraktir...</div>
-                </div>
-                <div class="mail-date">22 Dec</div>
-            </div>
 
         </div>
     </div>
 
     <div id="story" class="tab-section">
         <h2 class="section-title">Introduction</h2>
-        <div style="max-width: 800px; margin: 0 auto; text-align: justify; line-height: 1.8; color: #555;">
-            <img src="https://placehold.co/800x300/3498DB/fff?text=School+Rooftop" style="width:100%; border-radius:12px; margin-bottom:20px;">
-            <p style="margin-bottom: 20px;">
-                Billal adalah seorang siswa biasa yang mendambakan kehidupan sekolah yang sempurna. Menjadi anggota OSIS, dikelilingi teman-teman setia, dan menjalani hari-hari cerah tanpa akhir.
+        <div style="max-width: 800px; margin: 0 auto;" class="intro-text">
+            <img src="story.png" onerror="this.src='https://placehold.co/800x400/3498DB/fff?text=School+Rooftop'" class="story-img">
+            <p>
+                **Billal** adalah seorang siswa biasa yang mendambakan kehidupan sekolah yang sempurna. Menjadi anggota OSIS, dikelilingi teman-teman setia, dan menjalani hari-hari cerah tanpa akhir.
             </p>
             <p>
                 Namun, di balik langit biru itu, ada sesuatu yang retak. Kaca jendela di lorong sekolah selalu ditemukan pecah tanpa sebab yang jelas. Bayangan-bayangan asing mulai muncul di sudut matanya saat ia sendirian.
@@ -308,7 +344,7 @@
         <h2 class="section-title">Volunteer</h2>
         <div class="volunteer-box">
             <h3>We Are Recruiting!</h3>
-            <p style="margin: 15px 0;">Looking for: Music Producer, Pixel Artist, Godot Programmer.</p>
+            <p style="margin: 15px 0; color: #666;">Looking for: Music Producer, Pixel Artist, Godot Programmer.</p>
             <a href="#" class="btn-action">Apply Now</a>
         </div>
     </div>
@@ -317,81 +353,75 @@
         <h2 class="section-title">Support</h2>
         <div class="donate-box">
             <h3>Kirimkan Kami Happy Points!</h3>
-            <p style="margin: 15px 0;">Dukunganmu sangat berarti untuk menjaga kewarasan Developer.</p>
+            <p style="margin: 15px 0; color: #666;">Dukunganmu sangat berarti untuk menjaga kewarasan Developer.</p>
             <a href="https://trakteer.id/happycat_studios" target="_blank" class="btn-action btn-trakteer">Trakteer.id</a>
         </div>
     </div>
 
     <div id="news-modal" class="modal-overlay" onclick="closeNews(event)">
         <div class="modal-box">
-            <div class="modal-close" onclick="closeNewsBtn()">X</div>
+            <div class="modal-close" onclick="closeNewsBtn()"><i class="fa-solid fa-times"></i></div>
             <img id="modal-img" src="" class="modal-img">
             <div class="modal-body">
-                <h2 id="modal-title" style="margin-bottom: 10px;">Title</h2>
+                <h2 id="modal-title" style="margin-bottom: 15px; font-size: 20px;">Title</h2>
                 <p id="modal-desc" style="line-height: 1.6; color: #555;">Desc</p>
             </div>
         </div>
     </div>
 
     <script>
+        // --- SAFE LOADING LOGIC (Hilang Otomatis dalam 2 Detik) ---
+        function hideLoading() {
+            const intro = document.getElementById('intro-layer');
+            if (intro) {
+                intro.style.opacity = '0';
+                setTimeout(() => { intro.style.display = 'none'; }, 500);
+            }
+        }
+        // Pastikan loading hilang meski gambar belum selesai download
+        document.addEventListener('DOMContentLoaded', () => setTimeout(hideLoading, 1500));
+        window.addEventListener('load', () => setTimeout(hideLoading, 1500));
+
         // --- TAB SYSTEM ---
         function openTab(tabName, btnElement) {
-            var sections = document.querySelectorAll('.tab-section');
-            sections.forEach(function(sec) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-section').forEach(sec => {
                 sec.classList.remove('active');
                 sec.style.display = 'none';
             });
-            var buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(function(b) {
+            // Reset tombol nav
+            document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('active');
             });
+
+            // Tampilkan tab yang dipilih
             var target = document.getElementById(tabName);
             if(target) {
-                // Home pakai flex agar konten di tengah, tab lain block
+                // Home pakai flex biar tengah, lainnya block
                 target.style.display = (tabName === 'home') ? 'flex' : 'block';
-                requestAnimationFrame(() => {
-                    target.classList.add('active');
-                });
+                requestAnimationFrame(() => target.classList.add('active'));
             }
-            if(btnElement) {
-                btnElement.classList.add('active');
-            }
+            if(btnElement) btnElement.classList.add('active');
+            
             window.scrollTo(0, 0);
         }
 
-        // --- NEWS MODAL (With Image) ---
+        // --- MODAL ---
         function showNews(title, desc, imgUrl) {
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerHTML = desc; // Use innerHTML for formatting
-            const img = document.getElementById('modal-img');
-            img.src = imgUrl;
-            img.style.display = 'block'; // Show Image
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-img').src = imgUrl;
             document.getElementById('news-modal').style.display = 'flex';
         }
-
-        // --- MAIL MODAL (No Image, Reuse Popup) ---
-        function showMail(sender, subject, content) {
-            document.getElementById('modal-title').innerText = subject;
-            // Format pesan email agar rapi
-            const fullContent = `<div style="font-size:12px; color:#888; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">FROM: <b>${sender}</b></div>` + content;
-            
-            document.getElementById('modal-desc').innerHTML = fullContent;
-            document.getElementById('modal-img').style.display = 'none'; // Hide Image for Mail
-            document.getElementById('news-modal').style.display = 'flex';
-        }
-
         function closeNews(e) {
-            if (e.target.id === 'news-modal') {
-                document.getElementById('news-modal').style.display = 'none';
-            }
+            if (e.target.id === 'news-modal') document.getElementById('news-modal').style.display = 'none';
         }
         function closeNewsBtn() {
             document.getElementById('news-modal').style.display = 'none';
         }
 
-        // --- INIT ---
+        // --- INIT HOME TAB ---
         document.addEventListener("DOMContentLoaded", function() {
-            // Pastikan tab Home langsung muncul saat dibuka
             var homeTarget = document.getElementById('home');
             if(homeTarget){ homeTarget.style.display = 'flex'; }
         });
